@@ -667,7 +667,7 @@ void interrupt_event (SIM_DESC sd, void *data);
 
 void signal_exception (SIM_DESC sd, sim_cpu *cpu, address_word cia, int exception, ...);
 #define SignalException(exc,instruction)     signal_exception (SD, CPU, cia, (exc), (instruction))
-#define SignalExceptionInterrupt(level)      signal_exception (SD, CPU, cia, Interrupt, level)
+#define SignalExceptionInterrupt(vector)      signal_exception (SD, CPU, cia, Interrupt, vector)
 #define SignalExceptionInstructionFetch()    signal_exception (SD, CPU, cia, InstructionFetch)
 #define SignalExceptionAddressStore()        signal_exception (SD, CPU, cia, AddressStore)
 #define SignalExceptionAddressLoad()         signal_exception (SD, CPU, cia, AddressLoad)

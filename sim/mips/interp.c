@@ -27,6 +27,7 @@ code on the hardware.
 #include "sim-main.h"
 #include "sim-utils.h"
 #include "sim-options.h"
+#include "sim-types.h"
 #include "sim-assert.h"
 #include "sim-hw.h"
 
@@ -305,6 +306,7 @@ int interrupt_pending;
 void
 interrupt_event (SIM_DESC sd, void *data)
 {
+  sim_io_printf(sd, "interrupt_event() is called\n");
   sim_cpu *cpu = STATE_CPU (sd, 0); /* FIXME */
   address_word cia = CPU_PC_GET (cpu);
   if (SR & status_IE)
@@ -1035,6 +1037,9 @@ sim_create_inferior (SIM_DESC sd, struct bfd *abfd,
 	}
     }
 
+  void serial_init(SIM_DESC sd);
+  serial_init(sd);
+
 #if 0 /* def DEBUG */
   if (argv || env)
     {
@@ -1677,6 +1682,7 @@ ColdReset (SIM_DESC sd)
       SR &= ~(status_SR | status_TS | status_RP);
       SR |= (status_ERL | status_BEV);
       
+      
       /* Cheat and allow access to the complete register set immediately */
       if (CURRENT_FLOATING_POINT == HARD_FLOATING_POINT
 	  && WITH_TARGET_WORD_BITSIZE == 64)
@@ -1738,6 +1744,14 @@ signal_exception (SIM_DESC sd,
 #ifdef SIM_CPU_EXCEPTION_TRIGGER
   SIM_CPU_EXCEPTION_TRIGGER(sd, cpu, cia);
 #endif
+
+  unsigned_word base_vector_addr;
+
+  if (SR & status_BEV)
+    base_vector_addr = (signed)0xBFC00200;
+  else{
+    base_vector_addr = (signed)0xA0007000;
+  }
 
   switch (exception) {
 
@@ -1853,23 +1867,29 @@ signal_exception (SIM_DESC sd,
 	 CAUSE = (exception << 2);
 	 /* vector = 0x180; */
        }
-     SR |= status_EXL;
+      SR |= status_EXL;
      /* Store exception code into current exception id variable (used
         by exit code): */
 
-     if (SR & status_BEV)
-       PC = (signed)0xBFC00200 + 0x180;
-     else
-       PC = (signed)0x80000000 + 0x180;
+      PC = (signed) (base_vector_addr + 0x180);
 #endif
 
      switch ((CAUSE >> 2) & 0x1F)
        {
        case Interrupt:
-	 /* Interrupts arrive during event processing, no need to
-            restart */
-	 return;
+       {
+  /* Interrupts arrive during event processing, no need to
+        restart */
+  va_list ap;
+  unsigned int vector;
+  va_start(ap,1);
+  vector = va_arg(ap,unsigned int);
+  va_end(ap);
 
+  PC = (signed) (base_vector_addr + 0x20*vector);
+
+  return;
+       }
        case NMIReset:
 	 /* Ditto */
 #ifdef SUBTARGET_3900
@@ -1906,6 +1926,9 @@ signal_exception (SIM_DESC sd,
 	 break;
 
        case SystemCall:
+       #if 0
+        printf("SystemCall\n");
+       #endif
        case Trap:
 	 sim_engine_restart (SD, CPU, NULL, PC);
 	 break;

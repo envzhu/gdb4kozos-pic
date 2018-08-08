@@ -239,7 +239,18 @@
 
 010000,1,19.*,100000:COP0:32::WAIT
 "wait"
+*mipsIII:
+*mipsIV:
+*mipsV:
+*mips32:
+*mips32r2:
+*mips64:
+*mips64r2:
+*vr4100:
+*vr5000:
 *vr5500:
+{
+}
 
 011100,00000,5.RT,5.DR,00000,111101:SPECIAL:64::MFDR
 "mfdr r<RT>, r<DR>"

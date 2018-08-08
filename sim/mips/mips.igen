@@ -6451,7 +6451,23 @@
   DecodeCoproc (instruction_0, 2, 0, 0, 0, 0);
 }
 
-
+010000,01010,5.RT,5.RD,00000000000:COP0:32::RDPGPR
+"rdpgpr r<RT>, r<RD>"
+*mipsI:
+*mipsII:
+*mipsIII:
+*mipsIV:
+*mipsV:
+*mips32:
+*mips32r2:
+*mips64:
+*mips64r2:
+*vr4100:
+*vr5000:
+*r3900:
+{
+  //GDB sim does not support shadow register
+}
 
 010000,1,0000000000000000000,001000:COP0:32::TLBP
 "tlbp"
