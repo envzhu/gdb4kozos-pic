@@ -218,6 +218,7 @@ static void serial_tickle(SIM_DESC sd){
 
               //Set IFS(interrpt flag)
               IFS1 |= PIC_UART1_RECV_INTTERUPT_FLAG;
+            }
           }
         }else if(i==1){
           if((IFS1&PIC_UART2_RECV_INTTERUPT_FLAG)?0:1){
